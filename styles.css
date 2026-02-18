@@ -23,9 +23,22 @@
     --bg-card: #1e293b;
     --text-main: #f1f5f9;
     --text-muted: #94a3b8;
+    --text-placeholder: #cbd5e1;
     --border: #334155;
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.7);
+}
+
+[data-theme='dark'] ::placeholder {
+    color: #475569;
+}
+
+[data-theme='dark'] .task-desc {
+    color: #94a3b8;
+}
+
+[data-theme='dark'] .subtitle {
+    color: #64748b;
 }
 
 * {
@@ -491,16 +504,29 @@ body {
     background: #fef2f2;
 }
 
-footer {
+.app-footer {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column;
+    gap: 1rem;
     padding-top: 1rem;
     border-top: 1px solid var(--border);
     margin-top: 0.5rem;
 }
 
-footer p {
+.footer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-bottom {
+    text-align: center;
+    border-top: 1px solid var(--border);
+    padding-top: 0.75rem;
+}
+
+.footer-top p,
+.footer-bottom p {
     font-size: 0.7rem;
     color: var(--text-muted);
 }
