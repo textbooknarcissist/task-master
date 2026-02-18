@@ -19,6 +19,7 @@
     --text-placeholder: #94a3b8;
 
     --border: #e2e8f0;
+    --border-vibrant: #cbd5e1;
     --danger: #ef4444;
     --success: #22c55e;
 
@@ -189,18 +190,25 @@ body {
     gap: 0.6rem;
     background: var(--bg-input);
     padding: 1rem;
+    border: 2px solid var(--border-vibrant);
     border-radius: 10px;
 }
 
 .form-main {
     display: flex;
     gap: 0.5rem;
+    padding: 0.2rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
 }
 
 .form-details {
     display: flex;
     gap: 0.5rem;
     align-items: center;
+    padding: 0.2rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
 }
 
 #todo-desc,
