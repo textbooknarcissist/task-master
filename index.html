@@ -11,25 +11,28 @@
     <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
     <div class="app-container" id="app">
-        <header>
-            <h1>TaskMaster</h1>
-            <p class="subtitle">Streamline your workflow with deadlines.</p>
-        </header>
+        <header class="top-bar">
+            <div class="brand">
+                <h1 id="logo"><span class="logo-task">Task</span><span class="logo-master">Master</span></h1>
+                <p class="subtitle">Organize your thoughts, one task at a time.</p>
+            </div>
 
-        <section class="productivity-section" id="productivity-card">
-            <div class="productivity-header">
-                <span class="label">PRODUCTIVITY</span>
-                <span class="percentage" id="productivity-percent">0%</span>
+            <div class="productivity-circle-container" id="productivity-card">
+                <svg class="progress-ring" width="60" height="60">
+                    <circle class="progress-ring__background" stroke="#e2e8f0" stroke-width="5" fill="transparent"
+                        r="25" cx="30" cy="30" />
+                    <circle class="progress-ring__circle" id="productivity-ring" stroke="var(--primary)"
+                        stroke-width="5" fill="transparent" r="25" cx="30" cy="30" />
+                </svg>
+                <div class="productivity-value" id="productivity-percent">0%</div>
             </div>
-            <div class="progress-container">
-                <div class="progress-bar" id="productivity-bar" style="width: 0%"></div>
-            </div>
-        </section>
+        </header>
 
         <main>
             <section class="input-section" aria-label="Add new task">
@@ -38,8 +41,8 @@
                         <input type="text" id="todo-input" placeholder="What needs to be done?"
                             aria-label="New task title" autocomplete="off" required>
                         <button type="submit" id="add-btn" aria-label="Add task">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="12" y1="5" x2="12" y2="19"></line>
                                 <line x1="5" y1="12" x2="19" y2="12"></line>
                             </svg>
@@ -49,7 +52,7 @@
                         <input type="text" id="todo-desc" placeholder="Add a description (optional)"
                             aria-label="Task description">
                         <div class="date-input-wrapper">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
                                 stroke-width="2">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                                 <line x1="16" y1="2" x2="16" y2="6"></line>
