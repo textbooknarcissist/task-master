@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskMaster | Premium Task Manager</title>
+    <meta name="description" content="A premium, accessible, and responsive task manager built with native web technologies.">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container" id="app">
+        <header>
+            <h1>TaskMaster</h1>
+            <p class="subtitle">Organize your thoughts, one task at a time.</p>
+        </header>
+
+        <main>
+            <section class="input-section" aria-label="Add new task">
+                <form id="todo-form">
+                    <input 
+                        type="text" 
+                        id="todo-input" 
+                        placeholder="What needs to be done?" 
+                        aria-label="New task description"
+                        autocomplete="off"
+                        required
+                    >
+                    <button type="submit" id="add-btn" aria-label="Add task">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </form>
+            </section>
+
+            <section class="list-section" aria-label="Task list">
+                <div class="filters-bar">
+                    <div class="task-count" id="task-count">0 items left</div>
+                    <div class="filters" id="status-filters">
+                        <button class="filter-btn active" data-filter="all">All</button>
+                        <button class="filter-btn" data-filter="active">Active</button>
+                        <button class="filter-btn" data-filter="completed">Completed</button>
+                    </div>
+                </div>
+                
+                <ul id="todo-list" class="todo-list" aria-live="polite">
+                    <!-- Tasks will be injected here -->
+                </ul>
+            </section>
+        </main>
+
+        <footer>
+            <p>Drag and drop to reorder tasks</p>
+            <button id="clear-completed" class="clear-btn">Clear Completed</button>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
