@@ -1,11 +1,5 @@
 /**
- * TaskMaster - Core Application Logic
- * 
- * This file handles:
- * - State management with LocalStorage
- * - DOM manipulation and event delegation
- * - CRUD operations for tasks
- * - Filtering and Drag & Drop
+ * TaskMaster - Core Application Logic (v2)
  */
 
 // --- State Management ---
@@ -23,29 +17,35 @@ function saveTasks() {
 // --- DOM Elements ---
 const todoForm = document.getElementById('todo-form');
 const todoInput = document.getElementById('todo-input');
+const todoDesc = document.getElementById('todo-desc');
+const todoDate = document.getElementById('todo-date');
 const todoList = document.getElementById('todo-list');
-const taskCount = document.getElementById('task-count');
+
+const productivityPercent = document.getElementById('productivity-percent');
+const productivityBar = document.getElementById('productivity-bar');
+
+const countAll = document.getElementById('count-all');
+const countActive = document.getElementById('count-active');
+const countCompleted = document.getElementById('count-completed');
+const countOverdue = document.getElementById('count-overdue');
+
 const filterButtons = document.querySelectorAll('.filter-btn');
 const clearCompletedBtn = document.getElementById('clear-completed');
 
 // --- CRUD Operations ---
 
-/**
- * Add a new task
- */
-function addTask(text) {
+function addTask(title, desc, dueDate) {
     const newTask = {
         id: Date.now().toString(),
-        text,
+        text: title,
+        description: desc,
+        dueDate: dueDate || null,
         completed: false
     };
     tasks.push(newTask);
     saveTasks();
 }
 
-/**
- * Toggle task completion status
- */
 function toggleTask(id) {
     tasks = tasks.map(task =>
         task.id === id ? { ...task, completed: !task.completed } : task
@@ -53,17 +53,11 @@ function toggleTask(id) {
     saveTasks();
 }
 
-/**
- * Delete a task
- */
 function deleteTask(id) {
     tasks = tasks.filter(task => task.id !== id);
     saveTasks();
 }
 
-/**
- * Edit task text
- */
 function updateTaskText(id, newText) {
     tasks = tasks.map(task =>
         task.id === id ? { ...task, text: newText } : task
@@ -71,31 +65,58 @@ function updateTaskText(id, newText) {
     saveTasks();
 }
 
-/**
- * Clear all completed tasks
- */
 function clearCompleted() {
     tasks = tasks.filter(task => !task.completed);
     saveTasks();
 }
 
+// --- Helpers ---
+
+function isTaskOverdue(task) {
+    if (!task.dueDate || task.completed) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const due = new Date(task.dueDate);
+    due.setHours(0, 0, 0, 0);
+    return due < today;
+}
+
+function formatDisplayDate(dateStr) {
+    if (!dateStr) return '';
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const date = new Date(dateStr);
+    date.setHours(0, 0, 0, 0);
+
+    const diff = (date - today) / (1000 * 60 * 60 * 24);
+
+    if (diff === 0) return 'Today';
+    if (diff === 1) return 'Tomorrow';
+    if (diff === -1) return 'Yesterday';
+
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
 // --- UI Rendering ---
 
-/**
- * Render tasks based on current filter
- */
 function renderTasks() {
+    // 1. Update Counts & Productivity
+    updateMetrics();
+
+    // 2. Filter tasks
     const filteredTasks = tasks.filter(task => {
         if (currentFilter === 'active') return !task.completed;
         if (currentFilter === 'completed') return task.completed;
+        if (currentFilter === 'overdue') return isTaskOverdue(task);
         return true;
     });
 
     todoList.innerHTML = '';
 
     filteredTasks.forEach(task => {
+        const overdue = isTaskOverdue(task);
         const li = document.createElement('li');
-        li.className = `task-item ${task.completed ? 'completed' : ''}`;
+        li.className = `task-item ${task.completed ? 'completed' : ''} ${overdue ? 'overdue' : ''}`;
         li.draggable = true;
         li.dataset.id = task.id;
 
@@ -105,9 +126,21 @@ function renderTasks() {
                     <polyline points="20 6 9 17 4 12"></polyline>
                 </svg>
             </div>
-            <span class="task-text">${escapeHTML(task.text)}</span>
+            <div class="task-content">
+                <div class="task-header-row">
+                    <span class="task-text">${escapeHTML(task.text)}</span>
+                    <span class="status-badge">${task.completed ? 'Completed' : (overdue ? 'Overdue' : '')}</span>
+                </div>
+                ${task.description ? `<p class="task-desc">${escapeHTML(task.description)}</p>` : ''}
+                ${task.dueDate ? `
+                    <div class="task-meta ${overdue ? 'is-overdue' : ''}">
+                        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        <span>${formatDisplayDate(task.dueDate)}</span>
+                    </div>
+                ` : ''}
+            </div>
             <div class="actions">
-                <button class="action-btn edit-btn" aria-label="Edit task ${escapeHTML(task.text)}">
+                <button class="action-btn edit-btn" aria-label="Edit task">
                     <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
@@ -124,43 +157,41 @@ function renderTasks() {
             </div>
         `;
 
-        // Add event listeners for this item
         addListItemListeners(li, task);
         todoList.appendChild(li);
     });
-
-    updateCount();
 }
 
-/**
- * Escapes HTML to prevent XSS
- */
+function updateMetrics() {
+    const total = tasks.length;
+    const active = tasks.filter(t => !t.completed).length;
+    const completed = tasks.filter(t => t.completed).length;
+    const overdue = tasks.filter(t => isTaskOverdue(t)).length;
+
+    countAll.textContent = total;
+    countActive.textContent = active;
+    countCompleted.textContent = completed;
+    countOverdue.textContent = overdue;
+
+    const percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+    productivityPercent.textContent = `${percent}%`;
+    productivityBar.style.width = `${percent}%`;
+}
+
 function escapeHTML(str) {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;
 }
 
-/**
- * Update the "items left" counter
- */
-function updateCount() {
-    const activeCount = tasks.filter(task => !task.completed).length;
-    taskCount.textContent = `${activeCount} item${activeCount !== 1 ? 's' : ''} left`;
-}
+// --- Item Listeners ---
 
-// --- Event Handlers ---
-
-/**
- * Set up listeners for individual list items (Drag & Drop, Toggle, Delete, Edit)
- */
 function addListItemListeners(li, task) {
     const checkbox = li.querySelector('.checkbox');
     const deleteBtn = li.querySelector('.delete-btn');
     const editBtn = li.querySelector('.edit-btn');
     const textSpan = li.querySelector('.task-text');
 
-    // Toggle
     checkbox.addEventListener('click', () => toggleTask(task.id));
     checkbox.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -169,17 +200,16 @@ function addListItemListeners(li, task) {
         }
     });
 
-    // Delete
     deleteBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         deleteTask(task.id);
     });
 
-    // Edit in-place
-    editBtn.addEventListener('click', () => enterEditMode(li, task, textSpan));
-    textSpan.addEventListener('dblclick', () => enterEditMode(li, task, textSpan));
+    editBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        enterEditMode(li, task, textSpan);
+    });
 
-    // Drag events
     li.addEventListener('dragstart', (e) => {
         li.classList.add('dragging');
         e.dataTransfer.setData('text/plain', task.id);
@@ -190,17 +220,17 @@ function addListItemListeners(li, task) {
     });
 }
 
-/**
- * Handle in-place editing
- */
 function enterEditMode(li, task, textSpan) {
+    const headerRow = textSpan.parentElement;
+    const originalContent = headerRow.innerHTML;
+
     const input = document.createElement('input');
     input.type = 'text';
     input.className = 'edit-input';
     input.value = task.text;
 
-    // Replace text span with input
-    li.replaceChild(input, textSpan);
+    headerRow.innerHTML = '';
+    headerRow.appendChild(input);
     input.focus();
 
     const finishEdit = () => {
@@ -208,7 +238,7 @@ function enterEditMode(li, task, textSpan) {
         if (newText && newText !== task.text) {
             updateTaskText(task.id, newText);
         } else {
-            renderTasks(); // Revert if empty or unchanged
+            renderTasks();
         }
     };
 
@@ -220,14 +250,19 @@ function enterEditMode(li, task, textSpan) {
     input.addEventListener('blur', finishEdit);
 }
 
-// --- Global Event Listeners ---
+// --- Global Listeners ---
 
 todoForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const text = todoInput.value.trim();
-    if (text) {
-        addTask(text);
+    const title = todoInput.value.trim();
+    const desc = todoDesc.value.trim();
+    const date = todoDate.value;
+
+    if (title) {
+        addTask(title, desc, date);
         todoInput.value = '';
+        todoDesc.value = '';
+        todoDate.value = '';
     }
 });
 
@@ -241,8 +276,6 @@ filterButtons.forEach(btn => {
 });
 
 clearCompletedBtn.addEventListener('click', clearCompleted);
-
-// --- Drag and Drop Reordering ---
 
 todoList.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -260,7 +293,6 @@ todoList.addEventListener('dragover', (e) => {
 
 todoList.addEventListener('drop', (e) => {
     e.preventDefault();
-    // After drop, update the original tasks array based on the DOM order
     const newOrderIds = [...todoList.querySelectorAll('.task-item')].map(li => li.dataset.id);
     const newTasks = newOrderIds.map(id => tasks.find(t => t.id === id));
     tasks = newTasks;
